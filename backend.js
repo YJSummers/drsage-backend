@@ -11,7 +11,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const openai = new OpenAI({
-  apiKey: process.env.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
+  apiKey: process.env.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
 });
 
 app.post('/drsage', async (req, res) => {
