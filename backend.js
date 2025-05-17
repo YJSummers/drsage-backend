@@ -5,8 +5,13 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const OpenAI = require("openai");
 
+const app = express(); // ✅ This is what's missing right now
+
+app.use(cors());
+app.use(bodyParser.json());
+
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.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
 });
 
 app.post('/drsage', async (req, res) => {
