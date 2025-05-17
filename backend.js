@@ -11,8 +11,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const openai = new OpenAI({
-  apiKey: process.env.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
-});
+  apiKey: process.env
 
 app.post('/drsage', async (req, res) => {
   const { message, treatment } = req.body;
