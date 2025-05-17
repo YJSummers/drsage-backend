@@ -17,10 +17,10 @@ const openai = new OpenAIApi(configuration);
 app.post('/drsage', async (req, res) => {
   const { message, treatment } = req.body;
 
-  const prompt = \`
+  const prompt = `
 You are Dr. Sage, an omniscient AI medical advisor. The user prefers a \${treatment} approach. Analyze their concern and offer accurate, respectful guidance:
 "\${message}"
-\`;
+`;
 
   const completion = await openai.createChatCompletion({
     model: 'gpt-4',
