@@ -14,24 +14,12 @@ const openai = new OpenAI({
 });
 
 app.post('/drsage', async (req, res) => {
-  const { message, treatment } = req.body;
+  const { messages } = req.body;
 
   try {
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content: `You are Dr. Sage, a compassionate and highly intelligent virtual medical assistant with full diagnostic capabilities. 
-If the user's message is vague or non-specific (e.g., "I have an earache"), you must ask follow-up questions to gather more details 
-before offering an assessment or treatment. Adjust responses based on their preference for conventional, natural, or blended care. 
-You may explain complex ideas in plain language when necessary, but do not skip critical medical considerations.`,
-        },
-        {
-          role: 'user',
-          content: `${message}. They prefer a ${treatment} treatment approach.`,
-        },
-      ],
+      messages: messages,
       temperature: 0.7,
       max_tokens: 1000,
     });
@@ -44,5 +32,5 @@ You may explain complex ideas in plain language when necessary, but do not skip 
 });
 
 app.listen(3000, () => {
-  console.log('Dr. Sage backend running on port 3000');
+  console.log('Dr. Sage memory backend running on port 3000');
 });
