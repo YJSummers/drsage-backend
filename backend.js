@@ -1,36 +1,48 @@
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const { Configuration, OpenAIApi } = require('openai');
+
 require('dotenv').config();
-
-const OpenAI = require('openai');
-
 const app = express();
+const port = process.env.PORT || 3001;
+
 app.use(cors());
 app.use(bodyParser.json());
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY
 });
+const openai = new OpenAIApi(configuration);
+
+// In-memory chat memory
+const sessionMemory = {};
 
 app.post('/drsage', async (req, res) => {
-  const { messages } = req.body;
+  const { messages, userId = 'anon' } = req.body;
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: messages,
-      temperature: 0.7,
-      max_tokens: 1000,
+    // Maintain short history
+    if (!sessionMemory[userId]) sessionMemory[userId] = [];
+    sessionMemory[userId].push(...messages);
+    if (sessionMemory[userId].length > 10) sessionMemory[userId] = sessionMemory[userId].slice(-10);
+
+    const completion = await openai.createChatCompletion({
+      model: 'gpt-4',
+      messages: sessionMemory[userId]
     });
 
-    res.json({ reply: completion.choices[0].message.content });
-  } catch (err) {
-    console.error('Error from OpenAI:', err.message);
-    res.status(500).json({ error: 'Failed to get response from Dr. Sage' });
+    const reply = completion.data.choices[0].message.content;
+    sessionMemory[userId].push({ role: 'assistant', content: reply });
+
+    res.json({ reply });
+  } catch (error) {
+    console.error("API error:", error.response?.data || error.message);
+    res.status(500).json({ reply: "Sorry, Dr. Sage is unavailable right now." });
   }
 });
 
-app.listen(3000, () => {
-  console.log('Dr. Sage memory backend running on port 3000');
+app.listen(port, () => {
+  console.log(`Dr. Sage backend running on port ${port}`);
 });
