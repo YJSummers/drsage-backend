@@ -2,7 +2,10 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAI = require("openai");
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
 
 require('dotenv').config();
 const app = express();
@@ -28,10 +31,11 @@ app.post('/drsage', async (req, res) => {
     sessionMemory[userId].push(...messages);
     if (sessionMemory[userId].length > 10) sessionMemory[userId] = sessionMemory[userId].slice(-10);
 
-    const completion = await openai.createChatCompletion({
-      model: 'gpt-4',
-      messages: sessionMemory[userId]
-    });
+   const completion = await openai.chat.completions.create({
+  model: "gpt-4",
+  messages: sessionMemory[userId],
+});
+
 
     const reply = completion.data.choices[0].message.content;
     sessionMemory[userId].push({ role: 'assistant', content: reply });
